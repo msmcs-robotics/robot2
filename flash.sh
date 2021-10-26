@@ -1,5 +1,10 @@
 #!/bin/bash
-
+#
+#
+# Only seems to work effectively when using a microSD to USB adapter, 
+# MicroSD to a full size SD card adapter does not enable ssh 
+#
+#
 read -p "What is the full path to the RpiOS .img?> " imgdir
 read -p "Would you like to enable ssh?(y/n)> " sshen
 clear
