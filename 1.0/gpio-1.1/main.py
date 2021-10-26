@@ -18,6 +18,10 @@ u4e = 24
 #set GPIO direction (IN / OUT)
 GPIO.setup(u1t, GPIO.OUT)
 GPIO.setup(u1e, GPIO.IN)
+GPIO.setup(u2t, GPIO.OUT)
+GPIO.setup(u2e, GPIO.IN)
+GPIO.setup(u3t, GPIO.OUT)
+GPIO.setup(u3e, GPIO.IN)
  
 def ultradist(ut, ue):
     GPIO.output(ut, True)
