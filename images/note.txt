@@ -1,0 +1,1 @@
+Rpi 3 & 4 share the same gpio
