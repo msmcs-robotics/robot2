@@ -44,7 +44,7 @@ if __name__ == '__main__':
             dist1 = ultradist(u1t, u1e)
             dist2 = ultradist(u2t, u2e)
             dist3 = ultradist(u3t, u3e)
-            print (dist1, " , ", dist2 , " , ", dist3)
+            print (dist1, " | ", dist2 , " | ", dist3)
             time.sleep(1)
     except KeyboardInterrupt:
         print("Measurement stopped by User")
