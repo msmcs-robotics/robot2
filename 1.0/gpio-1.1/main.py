@@ -13,7 +13,7 @@ u1e = 18
 u2t = 27
 u2e = 22
 u3t = 23
-u4e = 24
+u3e = 24
 
 #set GPIO direction (IN / OUT)
 GPIO.setup(u1t, GPIO.OUT)
