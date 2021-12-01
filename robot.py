@@ -13,6 +13,8 @@ https://pimylifeup.com/raspberry-pi-distance-sensor/
 
 # L298N Motor Driver
 
+https://maker.pro/raspberry-pi/tutorial/how-to-control-a-dc-motor-with-an-l298-controller-and-raspberry-pi
+
 https://techatronic.com/raspberry-pi-motor-control/
 
 # Servo
