@@ -3,7 +3,9 @@ import time
 from time import sleep
 import sys
 import os
-
+#----------------------------------------------------------------------------------------------------
+#                                       Config
+#----------------------------------------------------------------------------------------------------
 gp.setmode(gp.BCM)
 
 # Debugging Log
@@ -18,7 +20,9 @@ def debug_log(message):
 
 pwm_mode_bool = 0 # zero or one, off or on
 
-servo_range_of_motion = 180 # normally 90, 180, or 360 degrees
+servo_max_degrees = 180 # normally 90, 180, or 360 degrees
+duty_cycle = 1 # 1ms for the - check your servo's datasheetp
+servo_duty_cycle = servo_max_degrees / duty_cycle
 
 #----------------------------------------------------------------------------------------------------
 #                                       Pins
@@ -72,6 +76,7 @@ pwm4 = gp.PWM(m4,motor_freq)
 gp.setup(serv1, gp.OUT)
 servo_freq = 50
 pwmS = gp.PWM(serv1,servo_freq)
+pwmS.start(0)
 
 #----------------------------------------------------------------------------------------------------
 #                                       Distance Function
@@ -172,50 +177,66 @@ def drive_pwm(val1, val2, val3, val4):
     pwm2.ChangeDutyCycle(val4)
 
 #----------------------------------------------------------------------------------------------------
-#                                       Servo Function
+#                                       Servo Functions
 #----------------------------------------------------------------------------------------------------
+
+# Set Angle
+
+def sweep(servo, angle):
+    duty = angle / 18 + 3
+    gp.output(11, True)
+    servo.ChangeDutyCycle(duty)
+    sleep(1)
+    gp.output(11, False)
+    servo.ChangeDutyCycle(duty)
 
 # Scan with Servo
 
-def servo_scan():
-    stopw()
+def cal_average(num):
+    sum_num = 0
+    for t in num:
+        sum_num = sum_num + t           
+    avg = sum_num / len(num)
+    return avg
 
+def servo_scan():
+
+# stop to scan
+
+    stopw()
     av1r = []
     av2r = []
     av3r = []
+
 # sweep forwards
-    move1 = (servo_range_of_motion / 3)
-    move2 = (servo_range_of_motion / 3) * 2
-    move3 = servo_range_of_motion
+
+    move1 = (servo_max_degrees / 3)
+    move2 = (servo_max_degrees / 3) * 2
+    move3 = servo_max_degrees
     for i in (0,move1):
-        # sweep servo
+        sweep(pwmS, i)
         dist1 = distance(u1t, u1e)
         dist2 = distance(u2t, u2e)
         dist3 = distance(u3t, u3e)
-        # average the distances
-        a1 = (dist1 + dist2 + dist3) / 3
+        a1 = cal_average([dist1, dist2, dist3])
         av1r.append(a1)
     for i in (move1,move2):
-        # sweep servo
+        sweep(pwmS, i)
         dist1 = distance(u1t, u1e)
         dist2 = distance(u2t, u2e)
         dist3 = distance(u3t, u3e)
-        # average the distances
-        a2 = (dist1 + dist2 + dist3) / 3
+        a2 = cal_average([dist1, dist2, dist3])
         av2r.append(a2)
     for i in (move2,move3):
-        # sweep servo
+        sweep(pwmS, i)
         dist1 = distance(u1t, u1e)
         dist2 = distance(u2t, u2e)
         dist3 = distance(u3t, u3e)
-        # average the distances
-        a3 = (dist1 + dist2 + dist3) / 3
+        a3 = cal_average([dist1, dist2, dist3])
         av3r.append(a3)
-
-    # Average the ranges of averages
-    av1 = float(sum(av1r))/len(av1r)
-    av2 = float(sum(av2r))/len(av2r)
-    av3 = float(sum(av3r))/len(av3r)
+    av1 = cal_average(av1r)
+    av2 = cal_average(av2r)
+    av3 = cal_average(av3r)
 
     # If quadrant1 (left) is closer
     if av1 > max(av2, av3):
@@ -229,7 +250,7 @@ def servo_scan():
 
 # sweep backwards
 
-    for i in (servo_range_of_motion,0):
+    for i in (servo_max_degrees,0):
         # sweep servo
         print("sweep servo")
 
@@ -237,7 +258,21 @@ def servo_scan():
 #                                       Sensor -> Logic Functions
 #----------------------------------------------------------------------------------------------------
 
-# If less than 10cm, and if one rear sensor is closer than the other
+# If less than 10cm, and if one rear sensor is closer to an object than the other
+
+def dir_opt_normal(dist1, dist2, dist3):
+    if dist1 <= 10:
+        servo_scan()
+
+    if dist2 <= 10 or dist3 <= 10:
+        if dist2 < dist3:
+            rihw()
+        elif dist3 < dist2:
+            lefw()
+        else:
+            forw()
+
+# PWM Variant
 
 def dir_opt_pwm(dist1, dist2, dist3):
     if dist1 <= 10:
@@ -255,29 +290,11 @@ def dir_opt_pwm(dist1, dist2, dist3):
     val1, val2, val3, val4 = 255
     drive_pwm(val1, val2, val3, val4)
 
-# If less than 10, and if one rear sensor is closer than the other
-
-def dir_opt_normal(dist1, dist2, dist3):
-    if dist1 <= 10:
-        servo_scan()
-
-    if dist2 <= 10 or dist3 <= 10:
-        if dist2 < dist3:
-            rihw()
-        elif dist3 < dist2:
-            lefw()
-        else:
-            forw()
-
-
 def normal_run(): 
-    
     while True:
-
         dist1 = distance(u1t, u1e)
         dist2 = distance(u2t, u2e)
         dist3 = distance(u3t, u3e)
-
         dir_opt_normal(dist1, dist2, dist3)
 
 def pwm_run(): 
@@ -286,13 +303,10 @@ def pwm_run():
     pwm2.start(dc)
     pwm3.start(dc)
     pwm4.start(dc)
-
     while True:
-
         dist1 = distance(u1t, u1e)
         dist2 = distance(u2t, u2e)
         dist3 = distance(u3t, u3e)
-
         dir_opt_pwm(dist1, dist2, dist3)
 
 #----------------------------------------------------------------------------------------------------
