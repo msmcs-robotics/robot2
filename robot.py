@@ -179,7 +179,7 @@ def drive_pwm(val1, val2, val3, val4):
     pwm2.ChangeDutyCycle(val4)
 
 #----------------------------------------------------------------------------------------------------
-#                                       Servo Functions
+#                                       Servo & Servo Logic Functions
 #----------------------------------------------------------------------------------------------------
 
 # Set Angle
@@ -250,14 +250,11 @@ def servo_scan():
     elif av3 > max(av1, av2):
         lefw()
 
-# sweep backwards
-
-    for i in (servo_max_degrees,0):
-        # sweep servo
-        print("sweep servo")
+    # sweep backwards
+    sweep(pwmS, 0)
 
 #----------------------------------------------------------------------------------------------------
-#                                       Sensor -> Logic Functions
+#                                       Sensor Logic Functions
 #----------------------------------------------------------------------------------------------------
 
 # If less than 10cm, and if one rear sensor is closer to an object than the other
