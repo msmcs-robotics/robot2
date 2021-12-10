@@ -186,10 +186,10 @@ def drive_pwm(val1, val2, val3, val4):
 
 def sweep(servo, angle):
     duty = angle / 18 + 3
-    gp.output(11, True)
+    gp.output(serv1, True)
     servo.ChangeDutyCycle(duty)
     sleep(1)
-    gp.output(11, False)
+    gp.output(serv1, False)
     servo.ChangeDutyCycle(duty)
 
 # Scan with Servo
