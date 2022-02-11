@@ -1,0 +1,9 @@
+[Unit]
+Description=Start Up Robot On Boot
+
+[Service]
+WorkingDirectory=/home/pi/Downloads
+ExecStart=/home/pi/Downloads/robot2/robot.py
+
+[Install]
+WantedBy=multi-user.target
